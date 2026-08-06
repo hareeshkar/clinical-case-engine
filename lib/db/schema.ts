@@ -21,6 +21,7 @@ export const documents = pgTable("documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   ownerId: varchar("owner_id", { length: 255 }).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
+  originalFileName: varchar("original_file_name", { length: 255 }).notNull(),
   blobUrl: text("blob_url").notNull(),
   size: integer("size").notNull(),
   geminiFileName: text("gemini_file_name"),

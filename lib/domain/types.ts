@@ -42,6 +42,7 @@ export type CaseStudy = {
 export type DocumentRecord = {
   id: string;
   title: string;
+  originalFileName: string;
   size: number;
   status: "uploading" | "processing" | "ready" | "failed";
   pageEstimate: number | null;

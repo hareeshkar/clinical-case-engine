@@ -10,7 +10,9 @@ export async function GET(request: Request) {
     specialty: searchParams.get("specialty") || undefined,
     focus: searchParams.get("focus") as "diagnostic" | "surgical_complication" | "physio_management" | undefined,
     difficulty: searchParams.get("difficulty") as "undergrad" | "postgrad" | "licensing" | undefined,
-    documentId: searchParams.get("documentId") || undefined,
+    complicationTiming: searchParams.get("timing") as "early" | "late" | "none" | undefined,
+    sourceIds: searchParams.get("source")?.split(",").filter(Boolean),
+    sort: searchParams.get("sort") as "newest" | "oldest" | undefined,
   });
   return NextResponse.json(questions);
 }
