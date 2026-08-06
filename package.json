@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx lib/db/seed.ts"
+    "db:seed": "tsx lib/db/seed.ts",
+    "test:pdf-pipeline": "tsx scripts/test-pdf-pipeline.tsx"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.0",

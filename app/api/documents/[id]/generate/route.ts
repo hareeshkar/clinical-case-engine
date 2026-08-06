@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateQuestionsFromPdf } from "@/lib/ai/generate-from-pdf";
 import { getOwnedDocument, saveGeneratedQuestions, updateDocument } from "@/lib/db/queries";
-import { removeBlob } from "@/lib/storage/blob";
+import { readPrivateBlob, removeBlob } from "@/lib/storage/blob";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -19,9 +19,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const document = await getOwnedDocument(id, userId);
     if (!document) return NextResponse.json({ error: "Document not found." }, { status: 404 });
     await updateDocument(id, { status: "processing", errorMessage: null });
-    const response = await fetch(document.blobUrl);
-    if (!response.ok) throw new Error("The temporary PDF could not be retrieved.");
-    const result = await generateQuestionsFromPdf({ ...input, pdf: new Uint8Array(await response.arrayBuffer()), filename: document.title });
+    const result = await generateQuestionsFromPdf({ ...input, pdf: await readPrivateBlob(document.blobUrl), filename: document.title });
     await saveGeneratedQuestions(id, result.questions);
     await updateDocument(id, { status: "ready", geminiFileName: null, pageEstimate: document.pageEstimate ?? null });
     await removeBlob(document.blobUrl);

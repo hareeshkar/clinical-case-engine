@@ -1,4 +1,4 @@
-import { del } from "@vercel/blob";
+import { del, get } from "@vercel/blob";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { auth } from "@clerk/nextjs/server";
 
@@ -21,4 +21,10 @@ export async function createBlobUploadResponse(request: Request) {
 
 export async function removeBlob(url: string) {
   await del(url);
+}
+
+export async function readPrivateBlob(url: string) {
+  const result = await get(url, { access: "private" });
+  if (!result) throw new Error("The temporary PDF could not be retrieved.");
+  return new Uint8Array(await new Response(result.stream).arrayBuffer());
 }
