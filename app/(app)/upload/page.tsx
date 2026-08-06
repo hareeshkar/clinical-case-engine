@@ -1,0 +1,2 @@
+import { PdfDropzone } from "@/components/upload/pdf-dropzone";
+export default function UploadPage() { return <div className="mx-auto max-w-6xl px-5 pb-24 pt-12 lg:px-8"><p className="eyebrow">Document studio</p><h1 className="display mt-4 text-5xl leading-[.95] sm:text-6xl">From source to<br/>study set.</h1><p className="mt-5 max-w-2xl leading-7 text-[#60717a]">Upload one clinical teaching PDF. The entire document is analysed natively, and questions are retained only when they can cite their source.</p><div className="mt-12"><PdfDropzone /></div></div>; }
