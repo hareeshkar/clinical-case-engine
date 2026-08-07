@@ -30,6 +30,12 @@ A portfolio-ready clinical education workspace for source-cited, single-best-ans
 
 The app does not use embeddings, a vector database, chunking, retrieval, or a separate OCR service.
 
+## Specialty taxonomy
+
+Gemini classifies every generated question against the user's canonical specialty taxonomy. A question has one primary specialty and can have secondary tags for genuine cross-specialty material. The save review aggregates those question assignments, so a mixed PDF can appear in every relevant collection without duplicating the source.
+
+`Heart disease` is a parent collection with `Heart failure` and `Ischaemic heart disease` children. When no existing specialty fits, Gemini may propose a private category with a grounded rationale. The user must map it to an existing collection or confirm the proposed name and parent before saving. Future PDFs receive that private category in their taxonomy prompt, preventing duplicate near-matches.
+
 ## Important limits and safety
 
 - This is an educational portfolio app, not a clinical decision-support system.

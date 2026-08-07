@@ -12,6 +12,9 @@ export type Specialty = {
   name: string;
   description: string;
   color: string;
+  parentId?: string | null;
+  aliases?: string[];
+  ownerId?: string | null;
 };
 
 export type Question = {
@@ -24,6 +27,7 @@ export type Question = {
   difficulty: Difficulty;
   specialty: string;
   specialtyId?: string;
+  secondarySpecialtyIds?: string[];
   complicationTiming: ComplicationTiming;
   sourceCitation: string;
   documentId: string | null;
@@ -49,4 +53,5 @@ export type DocumentRecord = {
   createdAt: string;
   errorMessage?: string | null;
   questionCount?: number;
+  specialties?: Specialty[];
 };

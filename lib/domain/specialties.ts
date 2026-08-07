@@ -1,12 +1,13 @@
 import type { CaseStudy, Question, Specialty } from "@/lib/domain/types";
 
 export const specialties: Specialty[] = [
-  { id: "thoracic", slug: "thoracic", name: "Thoracic surgery", description: "Resection, drains, pulmonary recovery", color: "#2a9d8f" },
+  { id: "thoracic", slug: "thoracic", name: "Thoracic surgery", description: "Resection, drains, pulmonary recovery", color: "#2a9d8f", aliases: ["thoracic", "chest surgery"] },
   { id: "breast", slug: "breast", name: "Breast surgery", description: "Oncoplastic care and lymphatic risk", color: "#d57a66" },
   { id: "thyroid", slug: "thyroid", name: "Thyroid surgery", description: "Airway, calcium, voice and recovery", color: "#e5a844" },
   { id: "pulmonary_htn", slug: "pulmonary-htn", name: "Pulmonary hypertension", description: "Haemodynamics and functional capacity", color: "#6987b8" },
-  { id: "heart_failure", slug: "heart-failure", name: "Heart failure", description: "Congestion, monitoring and rehabilitation", color: "#b35b70" },
-  { id: "ihd", slug: "ihd", name: "Ischaemic heart disease", description: "Acute presentation and secondary prevention", color: "#b47c51" },
+  { id: "heart_disease", slug: "heart-disease", name: "Heart disease", description: "Cardiac conditions, rehabilitation and secondary prevention", color: "#a65b70", aliases: ["cardiac disease", "cardiology", "heart conditions"] },
+  { id: "heart_failure", slug: "heart-failure", name: "Heart failure", description: "Congestion, monitoring and rehabilitation", color: "#b35b70", parentId: "heart_disease", aliases: ["cardiac failure", "hf", "hfrEF", "hfpef"] },
+  { id: "ihd", slug: "ihd", name: "Ischaemic heart disease", description: "Acute presentation and secondary prevention", color: "#b47c51", parentId: "heart_disease", aliases: ["coronary artery disease", "cad", "ischemic heart disease", "ischaemic disease"] },
   { id: "abdominal", slug: "abdominal", name: "Abdominal surgery", description: "Enhanced recovery and surgical complications", color: "#77966d" },
 ];
 
