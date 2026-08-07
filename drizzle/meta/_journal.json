@@ -8,6 +8,20 @@
       "when": 1786030231284,
       "tag": "0000_easy_lady_vermin",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786032568638,
+      "tag": "0001_pink_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786035021028,
+      "tag": "0002_curious_loki",
+      "breakpoints": true
     }
   ]
 }

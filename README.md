@@ -7,7 +7,7 @@ A portfolio-ready clinical education workspace for source-cited, single-best-ans
 - Next.js App Router, TypeScript, Tailwind CSS
 - Clerk authentication
 - Neon Postgres with Drizzle ORM
-- Vercel Blob for short-lived PDF staging
+- Vercel Blob for private saved study sources
 - Google Gemini Files API with `gemini-3.5-flash-lite`
 - Browser-side `@react-pdf/renderer` study-set export and TSV flashcards
 
@@ -23,17 +23,23 @@ A portfolio-ready clinical education workspace for source-cited, single-best-ans
 ## PDF pipeline
 
 1. The browser validates a PDF at 50 MB or below and uploads it directly to Blob.
-2. A document row is recorded for the signed-in user.
-3. The Node generation route downloads the temporary Blob object, uploads it to Gemini Files API, waits for processing, then requests Zod-validated structured MCQs.
-4. The canonical system prompt forbids external medical knowledge and requires a source citation per item.
-5. Valid questions are stored in Neon. Both the temporary Gemini file and Blob object are removed after a successful run.
+2. The Node generation route downloads the temporary Blob object, uploads it to Gemini Files API, waits for processing, then requests Zod-validated structured MCQs.
+3. The canonical system prompt forbids external medical knowledge and requires a source citation per item.
+4. Generated questions remain only in the browser until the user gives the source a name and selects **Save to Document**.
+5. Saving writes the named document and questions to Neon, and retains the private PDF for the split-screen document view. Leaving without saving removes the temporary Blob object and writes nothing to Neon.
 
 The app does not use embeddings, a vector database, chunking, retrieval, or a separate OCR service.
+
+## Specialty taxonomy
+
+Gemini classifies every generated question against the user's canonical specialty taxonomy. A question has one primary specialty and can have secondary tags for genuine cross-specialty material. The save review aggregates those question assignments, so a mixed PDF can appear in every relevant collection without duplicating the source.
+
+`Heart disease` is a parent collection with `Heart failure` and `Ischaemic heart disease` children. When no existing specialty fits, Gemini may propose a private category with a grounded rationale. The user must map it to an existing collection or confirm the proposed name and parent before saving. Future PDFs receive that private category in their taxonomy prompt, preventing duplicate near-matches.
 
 ## Important limits and safety
 
 - This is an educational portfolio app, not a clinical decision-support system.
 - Do not upload real patient-identifiable information. Google free-tier API data handling is not appropriate for PHI.
 - Gemini free-tier limits vary by project. Generation is deliberately limited to batches of 3, 5, or 8 and retries rate-limit responses with exponential backoff.
-- Blob is short-lived staging rather than a permanent document archive. The 50 MB cap is hard; 15-20 MB documents are more comfortable on free storage limits.
+- Saved PDFs use private Blob storage. The 50 MB cap is hard; 15-20 MB documents are more comfortable on free storage limits. Documents shows the approximate remaining amount of the 1 GB allowance, and deleting a source removes its PDF and questions.
 - Current production deployment should use Vercel with the environment variables in `.env.example`; the generation route uses Node runtime and a 300-second max duration.

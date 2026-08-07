@@ -12,13 +12,14 @@ const responseSchema = {
     questions: { type: "ARRAY", items: {
       type: "OBJECT",
       properties: {
-        stem: { type: "STRING" }, options: { type: "ARRAY", minItems: 4, maxItems: 4, items: { type: "STRING" } }, correctIndex: { type: "INTEGER" }, rationale: { type: "STRING" }, focus: { type: "STRING" }, difficulty: { type: "STRING" }, specialty: { type: "STRING" }, complicationTiming: { type: ["STRING", "NULL"] }, sourceCitation: { type: "STRING" },
+        stem: { type: "STRING" }, options: { type: "ARRAY", minItems: 4, maxItems: 4, items: { type: "STRING" } }, correctIndex: { type: "INTEGER" }, rationale: { type: "STRING" }, focus: { type: "STRING" }, difficulty: { type: "STRING" }, specialty: { type: "STRING" }, secondarySpecialties: { type: "ARRAY", items: { type: "STRING" } }, complicationTiming: { type: ["STRING", "NULL"] }, sourceCitation: { type: "STRING" },
       },
-      required: ["stem", "options", "correctIndex", "rationale", "focus", "difficulty", "specialty", "complicationTiming", "sourceCitation"],
+      required: ["stem", "options", "correctIndex", "rationale", "focus", "difficulty", "specialty", "secondarySpecialties", "complicationTiming", "sourceCitation"],
     } },
     overallNotes: { type: "STRING" },
+    proposedSpecialties: { type: "ARRAY", items: { type: "OBJECT", properties: { key: { type: "STRING" }, name: { type: "STRING" }, parentKey: { type: ["STRING", "NULL"] }, rationale: { type: "STRING" } }, required: ["key", "name", "parentKey", "rationale"] } },
   },
-  required: ["questions", "overallNotes"],
+  required: ["questions", "proposedSpecialties", "overallNotes"],
 } as const;
 
 async function retryOnRateLimit<T>(operation: () => Promise<T>): Promise<T> {
@@ -34,7 +35,7 @@ async function retryOnRateLimit<T>(operation: () => Promise<T>): Promise<T> {
   throw lastError;
 }
 
-export async function generateQuestionsFromPdf(input: { pdf: Uint8Array; filename: string; focus: Focus; difficulty: Difficulty; questionCount: number; specialtyHint?: string }) {
+export async function generateQuestionsFromPdf(input: { pdf: Uint8Array; filename: string; focus: Focus; difficulty: Difficulty; questionCount: number; specialtyHint?: string; taxonomy: import("@/lib/domain/types").Specialty[] }) {
   const ai = getGeminiFilesClient();
   const file = await retryOnRateLimit(() => ai.files.upload({
     file: new Blob([new Uint8Array(input.pdf)], { type: "application/pdf" }),
@@ -53,10 +54,10 @@ export async function generateQuestionsFromPdf(input: { pdf: Uint8Array; filenam
     const response = await retryOnRateLimit(() => ai.models.generateContent({
       model: MODEL,
       contents: [{ role: "user", parts: [{ text: buildMcqUserPrompt(input) }, { fileData: { fileUri: activeFile.uri!, mimeType: "application/pdf" } }] }],
-      config: { systemInstruction: SYSTEM_PROMPT_MCQ, responseMimeType: "application/json", responseJsonSchema: responseSchema },
+      config: { systemInstruction: SYSTEM_PROMPT_MCQ, responseMimeType: "application/json", responseJsonSchema: responseSchema, maxOutputTokens: Math.min(65_536, Math.max(4_096, input.questionCount * 400)) },
     }));
     const parsed = generatedMcqBatchSchema.parse(JSON.parse(response.text ?? "{}"));
-    return { questions: parsed.questions.map((question, index) => ({ ...question, id: `generated-${index}`, documentId: null } satisfies Question)), overallNotes: parsed.overallNotes, geminiFileName: activeFile.name! };
+    return { questions: parsed.questions.map((question, index) => ({ ...question, id: `generated-${index}`, documentId: null, secondarySpecialtyIds: question.secondarySpecialties } satisfies Question)), proposedSpecialties: parsed.proposedSpecialties, overallNotes: parsed.overallNotes, geminiFileName: activeFile.name! };
   } finally {
     // The database holds only generated learning content; remove the ephemeral source from Gemini.
     if (activeFile.name) await ai.files.delete({ name: activeFile.name }).catch(() => undefined);

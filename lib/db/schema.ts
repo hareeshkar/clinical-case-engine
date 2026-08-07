@@ -1,4 +1,4 @@
-import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { type AnyPgColumn, boolean, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const specialties = pgTable("specialties", {
   id: varchar("id", { length: 40 }).primaryKey(),
@@ -6,6 +6,9 @@ export const specialties = pgTable("specialties", {
   slug: varchar("slug", { length: 120 }).notNull().unique(),
   description: text("description").notNull(),
   color: varchar("color", { length: 16 }).notNull(),
+  parentId: varchar("parent_id", { length: 40 }).references((): AnyPgColumn => specialties.id),
+  ownerId: varchar("owner_id", { length: 255 }),
+  aliases: jsonb("aliases").$type<string[]>().notNull().default([]),
 });
 
 export const caseStudies = pgTable("case_studies", {
@@ -21,6 +24,7 @@ export const documents = pgTable("documents", {
   id: uuid("id").defaultRandom().primaryKey(),
   ownerId: varchar("owner_id", { length: 255 }).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
+  originalFileName: varchar("original_file_name", { length: 255 }).notNull(),
   blobUrl: text("blob_url").notNull(),
   size: integer("size").notNull(),
   geminiFileName: text("gemini_file_name"),
@@ -44,6 +48,17 @@ export const questions = pgTable("questions", {
   sourceCitation: text("source_citation").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [index("question_filter_idx").on(table.specialtyId, table.focus, table.difficulty)]);
+
+export const documentSpecialties = pgTable("document_specialties", {
+  documentId: uuid("document_id").notNull().references(() => documents.id),
+  specialtyId: varchar("specialty_id", { length: 40 }).notNull().references(() => specialties.id),
+  isPrimary: boolean("is_primary").notNull().default(false),
+}, (table) => [primaryKey({ columns: [table.documentId, table.specialtyId] })]);
+
+export const questionSecondarySpecialties = pgTable("question_secondary_specialties", {
+  questionId: uuid("question_id").notNull().references(() => questions.id),
+  specialtyId: varchar("specialty_id", { length: 40 }).notNull().references(() => specialties.id),
+}, (table) => [primaryKey({ columns: [table.questionId, table.specialtyId] })]);
 
 export const quizSets = pgTable("quiz_sets", {
   id: uuid("id").defaultRandom().primaryKey(),

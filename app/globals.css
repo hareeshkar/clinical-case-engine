@@ -6,6 +6,9 @@ html { background: var(--paper); }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
 a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; }
+.primary-action { background: var(--ink); color: #fff !important; }
+.primary-action:hover { background: #163746; }
+:is(a, button)[class*="bg-[#0b1f2a]"] { color: #fff !important; }
 ::selection { background: #9bd8ce; color: var(--ink); }
 .display { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.045em; }
 .eyebrow { color: var(--teal-dark); font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
